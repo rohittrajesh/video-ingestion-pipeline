@@ -1,0 +1,13 @@
+# Video Quality Scoring Pipeline
+
+## Overview
+ Automated pipeline to ingest TikTok videos, analyze tone & manner against a reference, and output a quality score, feedback, and recommendation.
+
+## Setup
+ To get started, you'll need Python 3.11 installed. First, install Homebrew (if you haven’t already) by running the official install script, then use it to install FFmpeg (brew install ffmpeg) so that the ffmpeg binary is available on your PATH. Next, create and activate a virtual environment (python3.11 -m venv .venv && source .venv/bin/activate) and upgrade pip. With your venv active, install the Python dependencies via pip install -r requirements.txt, where requirements.txt pins openai==0.28.0 (for Whisper compatibility) and includes google-generative-ai, fastapi, uvicorn, ffmpeg-python, opencv-python, and other helper libraries. Create a .env file in your project root containing your GEMINI_KEY and OPENAI_KEY, and ensure your code calls load_dotenv() early so these keys are available to analysis/llm_client.py. Finally, launch the server by running uvicorn api.main:app --reload.
+
+## Limitations 
+ During development, I encountered shifting SDKs and removed API methods on both the OpenAI and Google GenAI clients. I pinned the OpenAI library to 0.28.0 so openai.Audio.transcribe("whisper-1", …) still works, and used the google-generative-ai package for image analysis, carefully choosing the gemini-1.5-flash model (instead of deprecated vision-pro models, which was another severe limitation) and cleaning out Markdown code fences from its JSON output. I also had trouble installing the right package version: PyPI’s module names and attributes (e.g. genai.models.generate_content vs. genai.vision.run_image_model) changed from the documentation I found. This all cumulated in the fact that in my code, some modules were being used with the wrong attributes, and those issues still persist in the program now. This is the main source of error in the program: the output is not functional as the wrong methods are being associated with the wrong modules. 
+
+ ## Next Steps 
+  To move forward, the first priority is to lock in a stable environment so that module APIs are compatible with the needed methods and atributes. Thus, we must first discover the specific documentation that is both readily available and updated so that we do not encounter any more errors regarding the wrong attributes being used by the modules. 

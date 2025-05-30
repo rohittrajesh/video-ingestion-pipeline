@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+ffmpeg-python
+opencv-python
+numpy
+scipy
+librosa
+pydub
+yt-dlp
+openai==0.28.0
+google-genai
+python-dotenv
+python-multipart
