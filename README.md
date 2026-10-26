@@ -1,13 +1,37 @@
-# Video Quality Scoring Pipeline
+# Video Ingestion Pipeline
 
-## Overview
- Automated pipeline to ingest TikTok videos, analyze tone & manner against a reference, and output a quality score, feedback, and recommendation.
+A prototype for reviewing the production quality of TikTok and other short-form promotional videos before publication. It brings video ingestion, visual measurements, audio processing and structured feedback into a single review workflow.
 
-## Setup
- To get started, you'll need Python 3.11 installed. First, install Homebrew (if you haven’t already) by running the official install script, then use it to install FFmpeg (brew install ffmpeg) so that the ffmpeg binary is available on your PATH. Next, create and activate a virtual environment (python3.11 -m venv .venv && source .venv/bin/activate) and upgrade pip. With your venv active, install the Python dependencies via pip install -r requirements.txt, where requirements.txt pins openai==0.28.0 (for Whisper compatibility) and includes google-generative-ai, fastapi, uvicorn, ffmpeg-python, opencv-python, and other helper libraries. Create a .env file in your project root containing your GEMINI_KEY and OPENAI_KEY, and ensure your code calls load_dotenv() early so these keys are available to analysis/llm_client.py. Finally, launch the server by running uvicorn api.main:app --reload.
+## Video ingestion
 
-## Limitations 
- During development, I encountered shifting SDKs and removed API methods on both the OpenAI and Google GenAI clients. I pinned the OpenAI library to 0.28.0 so openai.Audio.transcribe("whisper-1", …) still works, and used the google-generative-ai package for image analysis, carefully choosing the gemini-1.5-flash model (instead of deprecated vision-pro models, which was another severe limitation) and cleaning out Markdown code fences from its JSON output. I also had trouble installing the right package version: PyPI’s module names and attributes (e.g. genai.models.generate_content vs. genai.vision.run_image_model) changed from the documentation I found. This all cumulated in the fact that in my code, some modules were being used with the wrong attributes, and those issues still persist in the program now. This is the main source of error in the program: the output is not functional as the wrong methods are being associated with the wrong modules. 
+- Accept reference and target video uploads through an analysis endpoint.
+- Work with local video files.
+- Download clips from supported video URLs through the ingestion helper.
+- Prepare media for frame extraction and audio analysis.
 
- ## Next Steps 
-  To move forward, the first priority is to lock in a stable environment so that module APIs are compatible with the needed methods and atributes. Thus, we must first discover the specific documentation that is both readily available and updated so that we do not encounter any more errors regarding the wrong attributes being used by the modules. # allsale-video-pipeline
+## Visual analysis
+
+- Sample video frames and measure average brightness and contrast.
+- Estimate scene-change frequency as a signal of editing pace.
+- Extract a representative frame for AI-assisted review.
+- Define visual review criteria for lighting, contrast and close-up framing.
+
+## Audio analysis
+
+- Extract the video's audio track.
+- Calculate average audio energy.
+- Provide a speech-transcription helper.
+- Define voiceover review criteria for vocal energy, clarity and brand emphasis.
+
+## Quality scoring and feedback
+
+- Combine visual and audio criteria through a weighted scoring rubric.
+- Identify criteria that fall below the rubric's review threshold.
+- Return structured feedback and a recommendation: **pass**, **manual review** or **re-shoot**.
+- Support an intended 0–100 quality-score format once the input metrics are consistently normalized.
+
+## Development scope
+
+The repository contains the ingestion, feature-extraction and scoring components. End-to-end AI integration and score normalization still require completion. Reference videos are accepted by the API, but reference-based benchmarking is a planned extension.
+
+The assessment is intended to help creators prioritize production-quality improvements. It is not a validated predictor of TikTok views, engagement or sales.
